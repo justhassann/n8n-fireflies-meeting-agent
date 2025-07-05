@@ -1,2 +1,68 @@
-# n8n-fireflies-meeting-agent
-An n8n workflow that uses an AI agent to analyze Fireflies.ai meeting transcripts to automatically create tasks in Airtable, schedule follow-ups, and notify participants.
+# AI Agent for Automated Project Management from Meeting Transcripts
+
+This workflow provides a "Smart Agent" that automates the entire post-meeting follow-up process. [cite_start]It listens for completed meeting transcripts from Fireflies.ai, uses an AI agent to analyze the content, and then automatically performs project management tasks such as creating action items in Airtable, notifying participants of their tasks via Gmail, and scheduling follow-up calls in Google Calendar. [cite: 181, 182]
+
+## Overview
+
+Manually tracking action items and ensuring follow-up after meetings is a common bottleneck that can lead to missed tasks. [cite_start]This automation solves that problem by creating a seamless bridge between your conversations and your project management tools. [cite: 181] The AI agent intelligently parses meeting transcripts to identify key tasks and commitments, ensuring nothing falls through the cracks.
+
+## Features
+
+* [cite_start]**Event-Driven Automation:** Uses a webhook to automatically trigger when a meeting recording is processed in Fireflies.ai. [cite: 174]
+* [cite_start]**Transcript Analysis:** Retrieves the full meeting transcript, participant list, and summary from the Fireflies API using GraphQL. [cite: 175]
+* [cite_start]**Intelligent Task Generation:** An AI Agent powered by OpenAI's `gpt-4o` analyzes the transcript to identify action items and generates structured tasks. [cite: 176, 177]
+* [cite_start]**Airtable Integration:** Automatically creates new tasks in a specified Airtable base, complete with descriptions, due dates, and priority levels. [cite: 166, 177]
+* [cite_start]**Automated Client Notifications:** Uses Gmail to send a summary of the meeting and a list of their specific action items to each client participant. [cite: 168, 178]
+* [cite_start]**Automated Scheduling:** If a follow-up call is mentioned in the transcript, the agent automatically creates a new event in Google Calendar with a Google Meet link and invites the relevant participants. [cite: 171, 179]
+
+## How It Works
+
+This project is composed of two interconnected workflows: the main agent and a task-creation tool.
+
+1.  **Webhook Trigger:** The process begins when Fireflies.ai sends a POST request to the n8n `Webhook` node upon meeting completion. [cite_start]This request contains the `meetingId`. [cite: 174]
+2.  [cite_start]**Fetch Meeting Content:** The workflow uses the `meetingId` to make a GraphQL API call to Fireflies.ai, retrieving the full transcript, summary, and participant details. [cite: 175]
+3.  **AI Agent Analysis:** The retrieved content is passed to the `AI Agent`. [cite_start]The agent's system prompt instructs it to analyze the transcript, looking for project-related discussions, action items, and mentions of follow-up calls. [cite: 165]
+4.  **Tool Execution:** Based on its analysis, the agent decides which tools to use:
+    * [cite_start]**`Create Tasks`:** The agent extracts action items assigned to you and sends them to a sub-workflow that creates records in your Airtable "Tasks" base. [cite: 166, 167]
+    * [cite_start]**`Notify Client About Tasks`:** The agent identifies action items for other participants and uses the `Gmail Tool` to email them a summary. [cite: 168, 169]
+    * [cite_start]**`Create Event`:** If a new meeting is needed, the agent uses the `Google Calendar Tool` to schedule it. [cite: 171]
+5.  [cite_start]**Final Testing:** The entire process is designed to be tested end-to-end to ensure all integrations are functioning correctly. [cite: 180]
+
+## Technologies Used
+
+* n8n
+* Fireflies.ai
+* Airtable
+* OpenAI (`gpt-4o`)
+* Gmail
+* Google Calendar
+
+## Setup & Configuration
+
+1.  [cite_start]**Create Accounts:** You will need accounts for n8n, Airtable, Fireflies.ai, Google, and OpenAI. [cite: 173]
+2.  **Replace Credentials & Connections:**
+    * **Fireflies API Key:** In the `Get Meeting Content` node, replace `[YOUR API KEY HERE]` with your actual Fireflies API token.
+    * **OpenAI:** Add your OpenAI API key to the `OpenAI Chat Model` node.
+    * **Airtable:** Add your Airtable credentials and select your "Tasks" Base and Table in the `Create Task` node.
+    * **Google:** Add your Google credentials for both the `Notify Client About Tasks` (Gmail) and `Create Event` (Calendar) nodes.
+3.  **Customize Prompts:**
+    * In the `Create Tasks` tool description, replace `[YOUR NAME HERE]` with your name so the AI knows which tasks to assign to you.
+    * In the `Notify Client About Tasks` tool description, replace `[YOUR EMAIL HERE]` with your email address to prevent the agent from sending you a notification.
+4.  [cite_start]**Configure Webhook:** Configure a webhook in your Fireflies.ai account to point to the URL generated by the n8n `Webhook` node. [cite: 174]
+
+## How to Use
+
+1.  After completing the setup, activate the workflow.
+2.  Record a meeting using Fireflies.ai.
+3.  Once the meeting is over and the transcript is processed, Fireflies will automatically trigger the workflow.
+4.  Check your Airtable base for newly created tasks and your Google Calendar for any new events. Participants will receive an email with their action items.
+
+---
+
+### Need Custom Automation? Let's Talk!
+
+If you're looking to implement powerful business automations, custom integrations, or full-stack projects like this one, I'm available for consulting. Let's discuss how I can help you streamline your business processes.
+
+Schedule a free 15-minute coffee chat to explore your project needs.
+
+[Book a chat here😁](https://cal.com/closegem/coffee-chat)
